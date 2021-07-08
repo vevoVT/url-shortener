@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.vt.shortener
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle_kotlin
+features: [annotation-api, app-name, gradle, hamcrest, http-client, jackson-xml, junit, kotlin, kotlin-application, kotlin-extension-functions, log4j2, management, netty-server, readme, redis-lettuce, shade, yaml]
