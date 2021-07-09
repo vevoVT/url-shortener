@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  cassandra:
+    image: cassandra
+    ports:
+      - "9042:9042"
+
+  create_keyspace:
+    image: cassandra
+    volumes:
+      - ./utils:/app
+    entrypoint: /app/create_keyspace.sh
+    depends_on:
+      - cassandra
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - cassandra
+      - create_keyspace

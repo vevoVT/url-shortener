@@ -1,4 +1,42 @@
 micronaut:
   application:
-    name: url
-redis.uri: redis://localhost
+    name: url-shortener
+  server:
+    host: 0.0.0.0
+    port: 8080
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+---
+endpoints:
+  health:
+    sensitive: false
+    details-visible: ANONYMOUS
+  metrics:
+    enabled: true
+    sensitive: false
+  prometheus:
+    sensitive: false
+---
+cassandra:
+  table: "url_shortener"
+  default:
+    advanced:
+#      resolve-contact-points: true
+      metadata:
+        schema:
+          enabled: false
+    basic:
+      contact-points:
+        - "cassandra:9042"
+      session-keyspace: "test"
+      load-balancing-policy:
+        local-datacenter: datacenter1
+---
+random-string:
+  max-limit: 10

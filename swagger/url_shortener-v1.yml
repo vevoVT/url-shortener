@@ -1,0 +1,165 @@
+openapi: 3.0.1
+info:
+  title: url_shortener
+  description: API for creating & viewing short urls along with redirecting to the
+    original url
+  version: v1
+paths:
+  /url_shortener/v1:
+    get:
+      summary: Get all short urls
+      description: "Retrieves all short url, their mapping & the number of times they\
+        \ have been accessed"
+      operationId: getAllGet
+      parameters: []
+      responses:
+        "200":
+          description: "Array of all short urls, url and their accessed count"
+          content:
+            application/json:
+              schema:
+                type: array
+                example: "[{ \"url\": \"https://abcd.com\", \"short_code\": \"random\"\
+                  , \"count\": 5 }]"
+  /url_shortener/v1/shorten:
+    post:
+      summary: Shortens a url
+      description: Generates a short url from a given url
+      operationId: shortenPost
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UrlShortener.Request'
+        required: true
+      responses:
+        "201":
+          description: Short url created
+          content:
+            text/plain:
+              schema:
+                type: string
+  /url_shortener/v1/{shortCode}:
+    get:
+      summary: Redirects via short url
+      description: Redirects to the original url using short url
+      operationId: redirectUrlGet
+      parameters:
+      - name: shortCode
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "301":
+          description: Redirected to the original url
+        "404":
+          description: Short url does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonError'
+        "200":
+          description: redirectUrlGet 200 response
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    AbstractResource_JsonError_:
+      type: object
+      properties:
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        embedded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+    Charset:
+      type: object
+      properties:
+        registered:
+          type: boolean
+        name:
+          type: string
+        aliases:
+          type: array
+          items:
+            type: string
+    JsonError:
+      allOf:
+      - $ref: '#/components/schemas/AbstractResource_JsonError_'
+      - type: object
+        properties:
+          message:
+            type: string
+          logref:
+            type: string
+          path:
+            type: string
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        templated:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/MediaType'
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        hreflang:
+          type: string
+    MediaType:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        subtype:
+          type: string
+        extension:
+          type: string
+        parameters:
+          type: array
+          items:
+            type: string
+        quality:
+          type: string
+        qualityAsNumber:
+          type: number
+        version:
+          type: string
+        charset:
+          $ref: '#/components/schemas/Charset'
+        textBased:
+          type: boolean
+    Resource:
+      type: object
+      properties:
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        embedded:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+    UrlShortener.Request:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          type: string

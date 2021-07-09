@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  container-jobs:
+    runs-on: ubuntu-latest
+
+    container:
+      image: gradle:jdk11
+
+    services:
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Check java version
+        run: java -version
+
+      - name: Install cqlsh
+        run: |
+          apt update
+          apt install -y python3-pip
+          pip3 install cqlsh==6.0.0b4
+
+      - name: Create cassandra keyspae
+        run: utils/create_keyspace.sh
+
+      - name: Build with Gradle
+        run: gradle clean build
+
+      - name: Publish code coverage
+        uses: codecov/codecov-action@v1.5.2
+        with:
+          directory: ./build/reports/jacoco/test/
