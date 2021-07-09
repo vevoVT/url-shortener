@@ -26,30 +26,17 @@ jobs:
       - name: Check java version
         run: java -version
 
+      - name: Install cqlsh
+        run: |
+          apt update
+          apt install -y python3-pip
+          pip3 install cqlsh==6.0.0b4
+
       - name: Create cassandra keyspae
         run: utils/create_keyspace.sh
 
-      #      - name: Check java version
-      #        uses: actions/setup-java@v2
-      #        with:
-      #          java-version: '11'
-      #          distribution: 'adopt'
-
-      #      - name: Grant execute permission for gradlew
-      #        run: chmod +x gradlew
-
-      #      - name: Cassndra
-      #        run: |
-      #          echo "deb http://downloads.apache.org/cassandra/debian 40x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
-      #          curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
-      #          sudo apt-get update
-      #          sudo apt-get install -y cassandra
-      #          java -version
-      #          sleep 30
-      #          nodetool status
-
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: gradle clean build
 
       - name: Publish code coverage
         uses: codecov/codecov-action@v1.5.2
