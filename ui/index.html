@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <title>Url Shortener</title>
+  <script type="text/javascript">
+
+    function shortenUrl() {
+      var fullUrl = document.getElementById("full-url").value
+      var out = document.getElementById("shorten-url-placeholder")
+      if(isValidUrl(fullUrl)) {
+        var xhttp = new XMLHttpRequest()
+        xhttp.onreadystatechange = function() {
+         if (this.readyState == 4 && this.status == 201) {
+          var prefix = "Shortened url: "
+          out.innerHTML = prefix + createLink(this.responseText)
+          out.className = out.className.replaceAll("alert-warning", "").trim()
+          out.className += " alert-success"
+          getAll()
+        }
+      };
+
+      xhttp.open("POST", "shorten", true)
+      xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+      xhttp.send(JSON.stringify({ "url": fullUrl }))
+    } else {
+      out.innerHTML = "Url invalid!"
+      out.className = out.className.replaceAll("alert-success", "").trim()
+      out.className += " alert-warning"
+    }
+  }
+
+  function createLink(text) {
+    return '<a target="_blank" href="' + text + '">' + text + "</a>"
+  }
+
+  document.onkeydown = function(e){
+   if(e.keyCode == 13){
+     shortenUrl()
+   }
+ };
+
+ function getAll() {
+  var xhttp = new XMLHttpRequest()
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var resp = JSON.parse(this.responseText)
+      if (resp.length !== 0) {
+        document.getElementById("output-wrapper").innerHTML = createTable(resp)
+      }
+    }
+  };
+
+  xhttp.open("GET", "getAll", true)
+  xhttp.send()
+}
+
+function createTable(json) {
+  var table = "<table class='table table-striped table-bordered table-hover' style='text-align:center;'><tr><th>Short url</th><th>Url</th><th>Count</th></tr>"
+  for (let i =0; i < json.length; i++) {
+    table += "<tr><td>" + createLink(json[i].short_code) + "</td><td>" + createLink(json[i].url) + "</td><td>" + json[i].count + "</td></tr>"
+  }
+  table += "</table>"
+  return table;
+}
+
+function isValidUrl(url) {
+  var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+  var regexp = new RegExp(expression);
+  return regexp.test(url);
+}
+
+</script>
+</head>
+<body onload="getAll()">
+  <h1 align="center" style="margin:20px;">Url Shortener</h1>
+  <div class="input-wrapper container p-2 my-2" align="center">
+    <input type="url" name="input-url" placeholder="Url" id="full-url" style="padding: 7px; vertical-align: middle; text-align: center;" >
+    <button class="shortener btn btn-primary" onclick="shortenUrl()" type="button" style="padding: 10px; margin-left: 10px;">Shorten</button>
+    <br/>
+  </div>
+  <div id="shorten-url-placeholder" align="center" class="container p-2 my-2 alert"></div>
+  <br/>
+  <div id="output-wrapper" align="center"></div>
+</body>
+</html>
