@@ -20,3 +20,12 @@ services:
     depends_on:
       - cassandra
       - create_keyspace
+
+  ui:
+    build: ./ui
+    ports:
+    - "80:3000"
+    environment:
+      - API_BASE_URL=app
+    depends_on:
+      - app
